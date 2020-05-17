@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">浮球矩阵演示系统</string>
+    <string name="default_title">浮球矩阵演示系统</string>
+    <string name="default_btn_name">按钮名称</string>
+    <string name="title">标题</string>
+    <string name="protocal">协议</string>
+    <string name="input_title">请输入标题</string>
+    <string name="service_ip">服务器地址</string>
+    <string name="input_service_ip">请输入服务器地址</string>
+    <string name="port">端口</string>
+    <string name="input_port">请输入端口</string>
+    <string name="connect">连接</string>
+    <string name="btn_settting">按键设置</string>
+</resources>
