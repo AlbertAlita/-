@@ -24,4 +24,9 @@ public class SettingActivity extends BaseActivity<ActivitySettingBinding, Settin
         return BR.viewModel;
     }
 
+    @Override
+    public void initData() {
+        binding.headerView.setText(R.id.header_title, getString(R.string.setting));
+        binding.container.addView(viewModel.initButton());
+    }
 }

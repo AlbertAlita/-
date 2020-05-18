@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="button_name">
+        <item>按键一</item>
+        <item>按键二</item>
+        <item>按键三</item>
+        <item>按键四</item>
+        <item>按键五</item>
+        <item>按键六</item>
+        <item>按键七</item>
+        <item>按键八</item>
+        <item>按键九</item>
+    </string-array>
+</resources>

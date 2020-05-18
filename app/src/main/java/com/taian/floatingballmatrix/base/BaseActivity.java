@@ -1,5 +1,6 @@
 package com.taian.floatingballmatrix.base;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -7,6 +8,9 @@ import android.os.Bundle;
 
 import com.taian.floatingballmatrix.R;
 import com.taian.floatingballmatrix.bus.Messenger;
+import com.taian.floatingballmatrix.constant.Constant;
+import com.taian.floatingballmatrix.utils.StatusBarUtils;
+import com.tamsiree.rxkit.RxBarTool;
 import com.trello.rxlifecycle3.components.support.RxAppCompatActivity;
 
 import java.lang.reflect.ParameterizedType;
@@ -20,6 +24,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
+
 import com.taian.floatingballmatrix.base.BaseViewModel.ParameterField;
 
 
@@ -32,11 +37,15 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
     private int viewModelId;
 //    private MaterialDialog dialog;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.Theme_AppCompat_Light_NoActionBar);
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //沉浸式
+        RxBarTool.transparencyBar(this);
+//        StatusBarUtils.setStatusBarDarkTheme(this, true);使状态栏字体变黑
         //页面接受的参数方法
         initParam();
         //私有的初始化Databinding和ViewModel方法
@@ -59,7 +68,7 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
         if (viewModel != null) {
             viewModel.removeRxBus();
         }
-        if(binding != null){
+        if (binding != null) {
             binding.unbind();
         }
     }
@@ -129,6 +138,15 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
                 startActivity(clz, bundle);
             }
         });
+
+        viewModel.getUC().getStartActivityForResultEvent().observe(this, new Observer<Map<String, Object>>() {
+            @Override
+            public void onChanged(@Nullable Map<String, Object> params) {
+                Class<?> clz = (Class<?>) params.get(BaseViewModel.ParameterField.CLASS);
+                startActivityForResult(clz, Constant.REQUEST_CODE);
+            }
+        });
+
         //跳入ContainerActivity
         viewModel.getUC().getStartContainerActivityEvent().observe(this, new Observer<Map<String, Object>>() {
             @Override
@@ -142,6 +160,13 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
         viewModel.getUC().getFinishEvent().observe(this, new Observer<Void>() {
             @Override
             public void onChanged(@Nullable Void v) {
+                finish();
+            }
+        });
+        viewModel.getUC().getFinishForResultEvent().observe(this, new Observer<Void>() {
+            @Override
+            public void onChanged(@Nullable Void v) {
+                setResult(RESULT_OK);
                 finish();
             }
         });
@@ -191,6 +216,11 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
             intent.putExtras(bundle);
         }
         startActivity(intent);
+    }
+
+    public void startActivityForResult(Class<?> clz, int requestCode) {
+        Intent intent = new Intent(this, clz);
+        startActivityForResult(intent, requestCode);
     }
 
     /**

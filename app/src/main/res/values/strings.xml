@@ -11,4 +11,12 @@
     <string name="input_port">请输入端口</string>
     <string name="connect">连接</string>
     <string name="btn_settting">按键设置</string>
+    <string name="setting">设置</string>
+    <string name="save">保存</string>
+    <string name="name">名称</string>
+    <string name="command">指令</string>
+    <string name="input_button_name">请输入按钮名称</string>
+    <string name="input_hex_command">请输入十六进制码</string>
+    <string name="pls_input_name">请输入%s的名称</string>
+    <string name="pls_input_protocal">请输入%s的十六进制码</string>
 </resources>

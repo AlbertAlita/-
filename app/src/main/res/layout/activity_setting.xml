@@ -1,167 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:binding="http://schemas.android.com/apk/res-auto">
 
-    <androidx.core.widget.NestedScrollView
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <com.taian.floatingballmatrix.view.HeaderView
+            android:id="@+id/header_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white"
-            android:orientation="vertical">
+            android:layout_below="@+id/header_view">
 
-            <LinearLayout
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/title"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
-
-                <EditText
-                    android:hint="@string/input_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <View
+                android:layout_height="match_parent"
                 android:background="@color/main_bg_color"
-                android:layout_width="match_parent"
-                android:layout_height="7dp"/>
+                android:orientation="vertical">
 
-            <LinearLayout
-                android:padding="10dp"
-                android:gravity="center_vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/protocal"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="UDP"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
-
-                <ImageView
-                    android:layout_marginLeft="10dp"
-                    android:src="@mipmap/right_arror"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"/>
-
-            </LinearLayout>
-
-            <View
-                android:background="@color/main_bg_color"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"/>
-
-            <LinearLayout
-                android:padding="10dp"
-                android:gravity="center_vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/service_ip"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
-
-                <EditText
-                    android:hint="@string/input_service_ip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
-
-            <View
-                android:background="@color/main_bg_color"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"/>
-
-            <LinearLayout
-                android:padding="10dp"
-                android:gravity="center_vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/port"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
-
-                <EditText
-                    android:hint="@string/input_port"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:gravity="right"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
-
-            <View
-                android:background="@color/main_bg_color"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"/>
-
-            <TextView
-                android:gravity="center"
-                android:padding="10dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/connet_selector"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/connect"
-                android:textColor="@android:color/white"
-                android:textSize="16sp" />
-
-            <TextView
-                android:padding="10dp"
-                android:background="@color/main_bg_color"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_settting"
-                android:textColor="@color/text_gray"
-                android:textSize="14sp" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rcy_button"
+                <LinearLayout
+                    android:id="@+id/ll_title"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/white"
+                    android:orientation="horizontal"
+                    android:padding="15dp">
 
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/title"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:gravity="right"
+                        android:hint="@string/input_title"
+                        android:singleLine="true"
+                        android:text="@={viewModel.settingEntity.title}"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_protocal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_title"
+                    android:layout_marginTop="7dp"
+                    android:background="@android:color/white"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="15dp"
+                    binding:onClickCommand="@{viewModel.onSetProtcalClickCommand}">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/protocal"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.socketMode}"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginLeft="5dp"
+                        android:src="@mipmap/right_arror" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_service_ip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_protocal"
+                    android:layout_marginTop="1dp"
+                    android:background="@android:color/white"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="15dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/service_ip"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:gravity="right"
+                        android:hint="@string/input_service_ip"
+                        android:singleLine="true"
+                        android:text="@={viewModel.settingEntity.ip}"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_port"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_service_ip"
+                    android:layout_marginTop="1dp"
+                    android:background="@android:color/white"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="15dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/port"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:gravity="right"
+                        android:hint="@string/input_port"
+                        android:singleLine="true"
+                        android:text="@={viewModel.settingEntity.port}"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <FrameLayout
+                    android:id="@+id/fl1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_port"
+                    android:background="@android:color/white">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:background="@drawable/connet_selector"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="@string/connect"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        binding:onClickCommand="@{viewModel.onConnentClickCommand}" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/btn_setting"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/fl1"
+                    android:background="@color/main_bg_color"
+                    android:padding="15dp"
+                    android:text="@string/btn_settting"
+                    android:textColor="@color/text_gray"
+                    android:textSize="14sp" />
+
+                <FrameLayout
+                    android:id="@+id/container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/btn_setting" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/container"
+                    android:layout_marginBottom="30dp"
+                    android:background="@android:color/white">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:background="@drawable/connet_selector"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="@string/save"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        binding:onClickCommand="@{viewModel.onCmtClickCommand}" />
+                </FrameLayout>
+            </RelativeLayout>
+        </androidx.core.widget.NestedScrollView>
+    </RelativeLayout>
 
     <data>
 

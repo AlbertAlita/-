@@ -1,4 +1,4 @@
-package com.taian.floatingballmatrix.Constant;
+package com.taian.floatingballmatrix.constant;
 
 import com.taian.floatingballmatrix.base.BaseApplication;
 import com.tamsiree.rxkit.RxDeviceTool;
@@ -11,5 +11,7 @@ import com.tamsiree.rxkit.RxImageTool;
  * @Version:1.0
  */
 public interface Constant {
-    int i = (RxDeviceTool.getScreenWidth(BaseApplication.getInstance()) - RxImageTool.dip2px(28)) / 3;
+    String SETTING = "SETTING";
+    String BUTTON_SETTING = "BUTTON_SETTING";
+    int REQUEST_CODE = 0x01;
 }

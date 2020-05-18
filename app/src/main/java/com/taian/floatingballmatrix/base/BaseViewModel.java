@@ -114,6 +114,12 @@ public class BaseViewModel<M extends BaseModel> extends AndroidViewModel impleme
         startContainerActivity(canonicalName, null);
     }
 
+    public void startActivityForReslut(Class<?> clz) {
+        Map<String, Object> params = new HashMap<>();
+        params.put(ParameterField.CLASS, clz);
+        uc.startActivityForResultEvent.postValue(params);
+    }
+
     /**
      * 跳转容器页面
      *
@@ -134,6 +140,13 @@ public class BaseViewModel<M extends BaseModel> extends AndroidViewModel impleme
      */
     public void finish() {
         uc.finishEvent.call();
+    }
+
+    /**
+     * 关闭界面
+     */
+    public void finishForReslut() {
+        uc.finishForResultEvent.call();
     }
 
     /**
@@ -200,8 +213,10 @@ public class BaseViewModel<M extends BaseModel> extends AndroidViewModel impleme
         private SingleLiveEvent<String> showDialogEvent;
         private SingleLiveEvent<Void> dismissDialogEvent;
         private SingleLiveEvent<Map<String, Object>> startActivityEvent;
+        private SingleLiveEvent<Map<String, Object>> startActivityForResultEvent;
         private SingleLiveEvent<Map<String, Object>> startContainerActivityEvent;
         private SingleLiveEvent<Void> finishEvent;
+        private SingleLiveEvent<Void> finishForResultEvent;
         private SingleLiveEvent<Void> onBackPressedEvent;
 
         public SingleLiveEvent<String> getShowDialogEvent() {
@@ -216,12 +231,20 @@ public class BaseViewModel<M extends BaseModel> extends AndroidViewModel impleme
             return startActivityEvent = createLiveData(startActivityEvent);
         }
 
+        public SingleLiveEvent<Map<String, Object>> getStartActivityForResultEvent() {
+            return startActivityForResultEvent = createLiveData(startActivityForResultEvent);
+        }
+
         public SingleLiveEvent<Map<String, Object>> getStartContainerActivityEvent() {
             return startContainerActivityEvent = createLiveData(startContainerActivityEvent);
         }
 
         public SingleLiveEvent<Void> getFinishEvent() {
             return finishEvent = createLiveData(finishEvent);
+        }
+
+        public SingleLiveEvent<Void> getFinishForResultEvent() {
+            return finishForResultEvent = createLiveData(finishForResultEvent);
         }
 
         public SingleLiveEvent<Void> getOnBackPressedEvent() {
