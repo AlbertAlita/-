@@ -19,4 +19,6 @@
     <string name="input_hex_command">请输入十六进制码</string>
     <string name="pls_input_name">请输入%s的名称</string>
     <string name="pls_input_protocal">请输入%s的十六进制码</string>
+    <string name="connectting">连接中...</string>
+    <string name="connected">断开连接</string>
 </resources>

@@ -32,7 +32,7 @@ public class SelectSocketModeDialog extends BaseDialog {
         wl.height = FrameLayout.LayoutParams.WRAP_CONTENT;
         setCanceledOnTouchOutside(false); // 外部点击取消
         // 设置宽度为屏宽, 靠近屏幕底部。
-        window.setGravity(Gravity.BOTTOM);
+        window.setGravity(Gravity.CENTER);
         onWindowAttributesChanged(wl);
         return view;
     }

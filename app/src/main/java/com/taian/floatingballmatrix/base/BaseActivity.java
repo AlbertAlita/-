@@ -35,6 +35,7 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
     protected V binding;
     protected VM viewModel;
     private int viewModelId;
+    protected String TAG = getClass().getSimpleName();
 //    private MaterialDialog dialog;
 
     @SuppressLint("SourceLockedOrientationActivity")

@@ -4,16 +4,26 @@ import android.app.Application;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.taian.floatingballmatrix.R;
 import com.taian.floatingballmatrix.base.BaseViewModel;
 import com.taian.floatingballmatrix.binding.command.BindingCommand;
+import com.taian.floatingballmatrix.bus.SingleLiveEvent;
 import com.taian.floatingballmatrix.constant.Constant;
 import com.taian.floatingballmatrix.decoration.RecyclerItemDecoration;
 import com.taian.floatingballmatrix.decoration.RecyclerViewDecoration;
 import com.taian.floatingballmatrix.entity.ButtonEntity;
 import com.taian.floatingballmatrix.entity.SettingEntity;
+import com.taian.floatingballmatrix.structures.BaseClient;
+import com.taian.floatingballmatrix.structures.BaseMessageProcessor;
+import com.taian.floatingballmatrix.structures.IConnectListener;
+import com.taian.floatingballmatrix.structures.TcpAddress;
+import com.taian.floatingballmatrix.structures.UdpAddress;
+import com.taian.floatingballmatrix.structures.message.Message;
+import com.taian.floatingballmatrix.tcp.nio.NioClient;
+import com.taian.floatingballmatrix.udp.nio.UdpNioClient;
 import com.taian.floatingballmatrix.utils.GsonUtil;
 import com.taian.floatingballmatrix.view.SelectSocketModeDialog;
 import com.taian.floatingballmatrix.view.treeview.TreeNode;
@@ -36,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.ObservableBoolean;
 
 /**
  * @ClassName: com.taian.floatingballmatrix.viewmodel
@@ -44,7 +55,7 @@ import androidx.annotation.NonNull;
  * @Date: 2020/5/17
  * @Version:1.0
  */
-public class SettingViewModel extends BaseViewModel implements SelectSocketModeDialog.OnViewClickListenter {
+public class SettingViewModel extends BaseViewModel {
 
     public SettingEntity settingEntity;
 
@@ -58,7 +69,23 @@ public class SettingViewModel extends BaseViewModel implements SelectSocketModeD
 
     private String[] buttonName;
 
-    public String socketMode = "UDP";
+    public String connectStaus = "连接";
+    private BaseClient mClient;
+
+
+    public boolean connetEnabled = true;
+
+    public SingleLiveEvent<Void> showDateDialogObservable = new SingleLiveEvent();
+
+    public SingleLiveEvent<Boolean> toastObservable = new SingleLiveEvent();
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.e(TAG, "onCreate: ");
+        initUDPCilent();
+    }
 
     public SettingViewModel(@NonNull Application application) {
         super(application);
@@ -70,8 +97,11 @@ public class SettingViewModel extends BaseViewModel implements SelectSocketModeD
         buttonName = getApplication().getResources().getStringArray(R.array.button_name);
         if (TextUtils.isEmpty(setting)) {
             settingEntity = new SettingEntity();
-            settingEntity.title = getApplication().getString(R.string.default_title);
-        } else settingEntity = GsonUtil.fromJson(setting, SettingEntity.class);
+            settingEntity.setTitle(getApplication().getString(R.string.default_title));
+        } else {
+            settingEntity = GsonUtil.fromJson(setting, SettingEntity.class);
+            settingEntity.notifyChange();
+        }
     }
 
     public View initButton() {
@@ -124,7 +154,6 @@ public class SettingViewModel extends BaseViewModel implements SelectSocketModeD
             if (node.getChildren().isEmpty()) break;
             ButtonEntity secondryValue = (ButtonEntity) node.getChildren().get(0).getValue();
             boolean empty = TextUtils.isEmpty(secondryValue.assignedName);
-            Log.e(TAG, ": " + value.buttonName + "--" + value.isSwitchOn + "---" + secondryValue.assignedName);
             if (value.isSwitchOn && empty) {
                 RxToast.warning(getApplication().getString(R.string.pls_input_name, buttonName[i]));
                 isSuccessCommit = false;
@@ -146,25 +175,92 @@ public class SettingViewModel extends BaseViewModel implements SelectSocketModeD
     });
 
     public BindingCommand onConnentClickCommand = new BindingCommand(() -> {
-        RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
+        int connecStatus = settingEntity.getConnecStatus();
+        Log.e(TAG, ":--- " + mClient.isConnected() );
+        if (connecStatus == SettingEntity.DISCONNECT) {
+            if (TextUtils.isEmpty(settingEntity.getIp())) {
+                RxToast.warning(getApplication().getString(R.string.input_service_ip));
+                return;
+            }
+            if (TextUtils.isEmpty(settingEntity.getPort())) {
+                RxToast.warning(getApplication().getString(R.string.input_port));
+                return;
+            }
+            Log.e(TAG, ": ---" );
+            if (mClient instanceof UdpNioClient) {
+                Log.e(TAG, ": ---UdpNioClient" );
+                ((UdpNioClient) mClient).setConnectAddress(new UdpAddress[]
+                        {new UdpAddress(settingEntity.getIp(), Integer.valueOf(settingEntity.getPort()))});
+            } else {
+                Log.e(TAG, ": ---NioClient" );
+                ((NioClient) mClient).setConnectAddress(new TcpAddress[]
+                        {new TcpAddress(settingEntity.getIp(), Integer.valueOf(settingEntity.getPort()))});
+            }
+            mClient.connect();
+            if (!mClient.isConnected()) {
+                connetEnabled = false;
+                settingEntity.setConnecString(getApplication().getString(R.string.connectting));
+                settingEntity.notifyChange();
+            }
+        } else if (connecStatus == SettingEntity.CONNECTED) {
+            mClient.disconnect();
+            settingEntity.setConnecString(getApplication().getString(R.string.connect));
+            settingEntity.setConnecStatus(SettingEntity.DISCONNECT);
+            settingEntity.notifyChange();
+        }
 
     });
-
-    private SelectSocketModeDialog dialog;
 
     public BindingCommand onSetProtcalClickCommand = new BindingCommand(() -> {
-        if (dialog == null) {
-            dialog = new SelectSocketModeDialog(getApplication());
-            dialog.setOnViewClickListenter(this);
-            dialog.show();
-        } else {
-            if (!dialog.isShowing()) dialog.show();
-        }
+        showDateDialogObservable.call();
     });
 
-    @Override
-    public void onViewClicked(boolean isUDP) {
-        socketMode = isUDP ? "UDP" : "TCP";
-        settingEntity.protocal = socketMode;
+
+    public void initTCPCilent() {
+        if ((mClient != null && mClient instanceof UdpNioClient) || mClient == null)
+            mClient = new NioClient(mMessageProcessor, mConnectResultListener);
+    }
+
+    public void initUDPCilent() {
+        if ((mClient != null && mClient instanceof NioClient) || mClient == null)
+            mClient = new UdpNioClient(mMessageProcessor, mConnectResultListener);
+    }
+
+    private BaseMessageProcessor mMessageProcessor = new BaseMessageProcessor() {
+
+        @Override
+        public void onReceiveMessages(BaseClient mClient, final LinkedList<Message> mQueen) {
+            for (int i = 0; i < mQueen.size(); i++) {
+                Message msg = mQueen.get(i);
+                final String s = new String(msg.data, msg.offset, msg.length);
+                Log.e(TAG, "onReceiveMessages: " + s);
+            }
+        }
+    };
+
+    private IConnectListener mConnectResultListener = new IConnectListener() {
+        @Override
+        public void onConnectionSuccess() {
+            Log.e(TAG, "onConnectionSuccess: ");
+            connetEnabled = true;
+            settingEntity.setConnecString(getApplication().getString(R.string.connected));
+            settingEntity.setConnecStatus( SettingEntity.CONNECTED);
+            settingEntity.notifyChange();
+            RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
+        }
+
+        @Override
+        public void onConnectionFailed() {
+            Log.e(TAG, "onConnectionFailed: ");
+            connetEnabled = true;
+            settingEntity.setConnecString(getApplication().getString(R.string.connect));
+            settingEntity.setConnecStatus( SettingEntity.DISCONNECT);
+            settingEntity.notifyChange();
+        }
+    };
+
+    public void setEntity(String protocal) {
+        settingEntity.setProtocal(protocal);
+        settingEntity.notifyChange();
     }
 }
