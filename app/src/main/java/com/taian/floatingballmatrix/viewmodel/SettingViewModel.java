@@ -16,6 +16,7 @@ import com.taian.floatingballmatrix.decoration.RecyclerItemDecoration;
 import com.taian.floatingballmatrix.decoration.RecyclerViewDecoration;
 import com.taian.floatingballmatrix.entity.ButtonEntity;
 import com.taian.floatingballmatrix.entity.SettingEntity;
+import com.taian.floatingballmatrix.facotry.SocketFactory;
 import com.taian.floatingballmatrix.structures.BaseClient;
 import com.taian.floatingballmatrix.structures.BaseMessageProcessor;
 import com.taian.floatingballmatrix.structures.IConnectListener;
@@ -59,7 +60,9 @@ public class SettingViewModel extends BaseViewModel {
 
     public SettingEntity settingEntity;
 
-    public int MAX_BUTTON = 9;
+    public static final int MAX_BUTTON = 9, UDP_MODE = 1, TCP_MODE = 2;
+
+    public int socketMode = UDP_MODE;
 
     public TreeNode root = TreeNode.root();
 
@@ -69,23 +72,7 @@ public class SettingViewModel extends BaseViewModel {
 
     private String[] buttonName;
 
-    public String connectStaus = "连接";
-    private BaseClient mClient;
-
-
-    public boolean connetEnabled = true;
-
     public SingleLiveEvent<Void> showDateDialogObservable = new SingleLiveEvent();
-
-    public SingleLiveEvent<Boolean> toastObservable = new SingleLiveEvent();
-
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Log.e(TAG, "onCreate: ");
-        initUDPCilent();
-    }
 
     public SettingViewModel(@NonNull Application application) {
         super(application);
@@ -94,12 +81,14 @@ public class SettingViewModel extends BaseViewModel {
 
     private void initSettingEntity() {
         String setting = RxSPTool.getString(getApplication(), Constant.SETTING);
+        Log.e(TAG, "initSettingEntity: " + setting);
         buttonName = getApplication().getResources().getStringArray(R.array.button_name);
         if (TextUtils.isEmpty(setting)) {
             settingEntity = new SettingEntity();
             settingEntity.setTitle(getApplication().getString(R.string.default_title));
         } else {
             settingEntity = GsonUtil.fromJson(setting, SettingEntity.class);
+            socketMode = TextUtils.equals(settingEntity.getProtocal(), "UDP") ? UDP_MODE : TCP_MODE;
             settingEntity.notifyChange();
         }
     }
@@ -166,8 +155,10 @@ public class SettingViewModel extends BaseViewModel {
             if (!empty) value.assignedName = secondryValue.assignedName;
             if (!TextUtils.isEmpty(secondryValue.hexCommand))
                 value.hexCommand = secondryValue.hexCommand;
+            Log.e(TAG, ": " + value.toString());
             entities.add(value);
         }
+        Log.e(TAG, ": " +isSuccessCommit );
         if (isSuccessCommit) {
             RxSPTool.putString(getApplication(), Constant.BUTTON_SETTING, GsonUtil.toJson(entities));
             finishForReslut();
@@ -176,7 +167,6 @@ public class SettingViewModel extends BaseViewModel {
 
     public BindingCommand onConnentClickCommand = new BindingCommand(() -> {
         int connecStatus = settingEntity.getConnecStatus();
-        Log.e(TAG, ":--- " + mClient.isConnected() );
         if (connecStatus == SettingEntity.DISCONNECT) {
             if (TextUtils.isEmpty(settingEntity.getIp())) {
                 RxToast.warning(getApplication().getString(R.string.input_service_ip));
@@ -186,27 +176,15 @@ public class SettingViewModel extends BaseViewModel {
                 RxToast.warning(getApplication().getString(R.string.input_port));
                 return;
             }
-            Log.e(TAG, ": ---" );
-            if (mClient instanceof UdpNioClient) {
-                Log.e(TAG, ": ---UdpNioClient" );
-                ((UdpNioClient) mClient).setConnectAddress(new UdpAddress[]
-                        {new UdpAddress(settingEntity.getIp(), Integer.valueOf(settingEntity.getPort()))});
-            } else {
-                Log.e(TAG, ": ---NioClient" );
-                ((NioClient) mClient).setConnectAddress(new TcpAddress[]
-                        {new TcpAddress(settingEntity.getIp(), Integer.valueOf(settingEntity.getPort()))});
-            }
-            mClient.connect();
-            if (!mClient.isConnected()) {
-                connetEnabled = false;
-                settingEntity.setConnecString(getApplication().getString(R.string.connectting));
-                settingEntity.notifyChange();
-            }
+            if (socketMode == UDP_MODE) udpOpen();
+            else tcpOpen();
         } else if (connecStatus == SettingEntity.CONNECTED) {
-            mClient.disconnect();
+            if (socketMode == UDP_MODE) udpDisconnect();
+            else tcpDisconnect();
             settingEntity.setConnecString(getApplication().getString(R.string.connect));
             settingEntity.setConnecStatus(SettingEntity.DISCONNECT);
             settingEntity.notifyChange();
+            RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
         }
 
     });
@@ -215,52 +193,68 @@ public class SettingViewModel extends BaseViewModel {
         showDateDialogObservable.call();
     });
 
+    public BindingCommand textClickCommand = new BindingCommand(() -> {
+    });
+
 
     public void initTCPCilent() {
-        if ((mClient != null && mClient instanceof UdpNioClient) || mClient == null)
-            mClient = new NioClient(mMessageProcessor, mConnectResultListener);
+        socketMode = TCP_MODE;
     }
 
     public void initUDPCilent() {
-        if ((mClient != null && mClient instanceof NioClient) || mClient == null)
-            mClient = new UdpNioClient(mMessageProcessor, mConnectResultListener);
+        socketMode = UDP_MODE;
     }
 
-    private BaseMessageProcessor mMessageProcessor = new BaseMessageProcessor() {
-
-        @Override
-        public void onReceiveMessages(BaseClient mClient, final LinkedList<Message> mQueen) {
-            for (int i = 0; i < mQueen.size(); i++) {
-                Message msg = mQueen.get(i);
-                final String s = new String(msg.data, msg.offset, msg.length);
-                Log.e(TAG, "onReceiveMessages: " + s);
-            }
+    private void tcpOpen() {
+        Log.e(TAG, "tcpOpen: " + settingEntity.getIp() + "---" + settingEntity.getPort());
+        SocketFactory.getInstance().mClient.setConnectAddress(new TcpAddress[]
+                {new TcpAddress(settingEntity.getIp(), Integer.valueOf(settingEntity.getPort()))});
+        SocketFactory.getInstance().mClient.connect();
+        if (!SocketFactory.getInstance().mClient.isConnected()) {
+            notifyConnecting();
         }
-    };
+        Log.e(TAG, "tcpOpen: " + SocketFactory.getInstance().mClient.getAdress());
+    }
 
-    private IConnectListener mConnectResultListener = new IConnectListener() {
-        @Override
-        public void onConnectionSuccess() {
-            Log.e(TAG, "onConnectionSuccess: ");
-            connetEnabled = true;
-            settingEntity.setConnecString(getApplication().getString(R.string.connected));
-            settingEntity.setConnecStatus( SettingEntity.CONNECTED);
-            settingEntity.notifyChange();
-            RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
+    private void udpOpen() {
+        SocketFactory.getInstance().mUdpClient.setConnectAddress(new UdpAddress[]
+                {new UdpAddress(settingEntity.getIp(), Integer.valueOf(settingEntity.getPort()))});
+        SocketFactory.getInstance().mUdpClient.connect();
+        if (!SocketFactory.getInstance().mUdpClient.isConnected()) {
+            Log.e(TAG, "udpOpen: ");
+            notifyConnecting();
         }
+    }
 
-        @Override
-        public void onConnectionFailed() {
-            Log.e(TAG, "onConnectionFailed: ");
-            connetEnabled = true;
-            settingEntity.setConnecString(getApplication().getString(R.string.connect));
-            settingEntity.setConnecStatus( SettingEntity.DISCONNECT);
-            settingEntity.notifyChange();
-        }
-    };
+    private void udpDisconnect() {
+        SocketFactory.getInstance().mUdpClient.disconnect();
+    }
 
-    public void setEntity(String protocal) {
-        settingEntity.setProtocal(protocal);
+    private void tcpDisconnect() {
+        SocketFactory.getInstance().mClient.disconnect();
+    }
+
+    private void notifyConnecting() {
+        settingEntity.setEnabled(false);
+        settingEntity.setConnecString(getApplication().getString(R.string.connectting));
         settingEntity.notifyChange();
     }
+
+    public void setEntity(String protocal) {
+        if (TextUtils.equals(settingEntity.getProtocal(), protocal)) return;
+        settingEntity.setProtocal(protocal);
+        settingEntity.setConnecStatus(SettingEntity.DISCONNECT);
+        settingEntity.setConnecString(getApplication().getString(R.string.connect));
+        settingEntity.notifyChange();
+    }
+
+    public void setEntity(SettingEntity entity) {
+        settingEntity.setEnabled(entity.isEnabled());
+        settingEntity.setConnecStatus(entity.getConnecStatus());
+        settingEntity.setConnecString(entity.getConnecString());
+        Log.e(TAG, "setEntity: " + settingEntity.toString());
+        RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
+        settingEntity.notifyChange();
+    }
+
 }

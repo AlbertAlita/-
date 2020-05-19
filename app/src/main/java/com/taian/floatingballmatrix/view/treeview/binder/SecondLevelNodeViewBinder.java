@@ -6,6 +6,7 @@ package com.taian.floatingballmatrix.view.treeview.binder;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
@@ -39,6 +40,7 @@ public class SecondLevelNodeViewBinder extends CheckableNodeViewBinder {
     @Override
     public void bindView(TreeNode treeNode, Context context) {
         ButtonEntity value = (ButtonEntity) treeNode.getValue();
+        etName.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
         etName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

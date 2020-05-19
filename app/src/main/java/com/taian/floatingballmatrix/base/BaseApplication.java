@@ -3,9 +3,17 @@ package com.taian.floatingballmatrix.base;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 
+import com.taian.floatingballmatrix.R;
+import com.taian.floatingballmatrix.constant.Constant;
+import com.taian.floatingballmatrix.entity.SettingEntity;
+import com.taian.floatingballmatrix.facotry.SocketFactory;
+import com.taian.floatingballmatrix.utils.GsonUtil;
 import com.taian.floatingballmatrix.utils.Utils;
 import com.tamsiree.rxkit.RxActivityTool;
+import com.tamsiree.rxkit.RxSPTool;
 import com.tamsiree.rxkit.RxTool;
 
 import androidx.annotation.NonNull;
@@ -18,6 +26,15 @@ public class BaseApplication extends Application {
         super.onCreate();
         RxTool.init(this);
         setApplication(this);
+        SocketFactory.resetSocket();
+
+        String setting = RxSPTool.getString(this, Constant.SETTING);
+        if (!TextUtils.isEmpty(setting)) {
+            SettingEntity entity = GsonUtil.fromJson(setting, SettingEntity.class);
+            entity.setConnecString(getString(R.string.connect));
+            entity.setConnecStatus(SettingEntity.DISCONNECT);
+            RxSPTool.putString(this, Constant.SETTING, GsonUtil.toJson(entity));
+        }
     }
 
     /**

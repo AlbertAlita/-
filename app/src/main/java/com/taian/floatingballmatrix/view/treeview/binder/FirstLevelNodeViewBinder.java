@@ -44,13 +44,14 @@ public class FirstLevelNodeViewBinder extends CheckableNodeViewBinder {
 
     @Override
     public void onNodeToggled(int position, TreeNode treeNode, boolean expand, Context context) {
+        Log.e("TAG", "onNodeToggled: " );
         checkBox.setChecked(expand);
     }
 
     @Override
     public void onNodeSelectedChanged(Context context, TreeNode treeNode, boolean selected) {
         ButtonEntity value = (ButtonEntity) treeNode.getValue();
-        Log.e("TAG", "onNodeSelectedChanged: " + value.toString() );
+        Log.e("TAG", "onNodeSelectedChanged: " + value.toString()  + selected);
         value.isSwitchOn = selected;
         if (selected) treeView.expandNode(treeNode);
         else treeView.collapseNode(treeNode);

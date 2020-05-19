@@ -3,12 +3,12 @@
 
     <data>
 
-        <import type="com.taian.floatingballmatrix.viewmodel.MainViewModel" />
+        <import type="com.taian.floatingballmatrix.viewmodel.IndexViewModel" />
 
 
         <variable
             name="viewModel"
-            type="MainViewModel" />
+            type="IndexViewModel" />
 
     </data>
 
@@ -34,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@={viewModel.settingEntity.title}"
+                android:text="@string/default_title"
                 android:textColor="@android:color/white"
                 android:textSize="22sp"
                 android:textStyle="bold" />

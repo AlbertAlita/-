@@ -22,6 +22,7 @@ public class SettingEntity extends BaseObservable implements Parcelable {
     private String ip;
     private String port;
     private String connecString = "连接";
+    private boolean enabled = true;
     private int connecStatus = DISCONNECT;
 
 
@@ -105,5 +106,26 @@ public class SettingEntity extends BaseObservable implements Parcelable {
         parcel.writeString(ip);
         parcel.writeString(port);
         parcel.writeInt(connecStatus);
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public String toString() {
+        return "SettingEntity{" +
+                "title='" + title + '\'' +
+                ", protocal='" + protocal + '\'' +
+                ", ip='" + ip + '\'' +
+                ", port='" + port + '\'' +
+                ", connecString='" + connecString + '\'' +
+                ", enabled=" + enabled +
+                ", connecStatus=" + connecStatus +
+                '}';
     }
 }

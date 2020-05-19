@@ -159,4 +159,7 @@ public final class NioConnector {
         }
     }
 
+    public TcpAddress[] getAdress(){
+        return mAddress;
+    }
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">浮球矩阵演示系统</string>
+    <string name="app_name">矩阵球</string>
     <string name="default_title">浮球矩阵演示系统</string>
     <string name="default_btn_name">按钮名称</string>
     <string name="title">标题</string>

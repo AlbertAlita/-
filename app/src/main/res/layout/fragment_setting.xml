@@ -173,6 +173,7 @@
                 </FrameLayout>
 
                 <TextView
+                    binding:onClickCommand="@{viewModel.textClickCommand}"
                     android:id="@+id/btn_setting"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

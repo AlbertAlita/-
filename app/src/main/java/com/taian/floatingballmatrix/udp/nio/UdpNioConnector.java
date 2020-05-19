@@ -153,4 +153,7 @@ public final class UdpNioConnector {
         }
     }
 
+    public UdpAddress[] getmAddress() {
+        return mAddress;
+    }
 }

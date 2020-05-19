@@ -1,6 +1,8 @@
 package com.taian.floatingballmatrix.udp.nio;
 
 
+import android.util.Log;
+
 import com.taian.floatingballmatrix.base.GClient;
 import com.taian.floatingballmatrix.structures.BaseClient;
 import com.taian.floatingballmatrix.structures.BaseMessageProcessor;
@@ -93,6 +95,7 @@ public final class UdpNioClient extends BaseClient {
             }
         }catch (Exception e){
             e.printStackTrace();
+            Log.e("TAG", "onRead: " + e.getMessage() );
             readRet = false;
         }
 
@@ -182,5 +185,9 @@ public final class UdpNioClient extends BaseClient {
     @Override
     public boolean isConnected() {
         return mConnector.isConnected();
+    }
+
+    public UdpAddress[] getAdress(){
+       return mConnector.getmAddress();
     }
 }

@@ -203,4 +203,8 @@ public final class NioClient extends BaseClient {
 
         return writeRet;
     }
+
+    public TcpAddress[] getAdress(){
+        return mConnector.getAdress();
+    }
 }

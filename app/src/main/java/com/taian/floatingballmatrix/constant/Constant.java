@@ -12,6 +12,6 @@ import com.tamsiree.rxkit.RxImageTool;
  */
 public interface Constant {
     String SETTING = "SETTING";
-    String BUTTON_SETTING = "BUTTON_SETTING";
+    String BUTTON_SETTING = "BUTTON_SETTING",PSD = "159357";
     int REQUEST_CODE = 0x01;
 }

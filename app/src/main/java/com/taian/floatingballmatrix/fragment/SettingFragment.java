@@ -1,35 +1,36 @@
-package com.taian.floatingballmatrix;
+package com.taian.floatingballmatrix.fragment;
+/*
+ Created by baotaian on 2020/5/19 0019.
+*/
+
 
 import android.os.Bundle;
-import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
-import com.taian.floatingballmatrix.base.BaseActivity;
+import com.taian.floatingballmatrix.BR;
+import com.taian.floatingballmatrix.R;
+import com.taian.floatingballmatrix.SettingActivity;
+import com.taian.floatingballmatrix.base.BaseFragment;
 import com.taian.floatingballmatrix.bus.RxBus;
 import com.taian.floatingballmatrix.bus.RxSubscriptions;
-import com.taian.floatingballmatrix.databinding.ActivitySettingBinding;
+import com.taian.floatingballmatrix.databinding.FragmentSettingBinding;
 import com.taian.floatingballmatrix.entity.SettingEntity;
 import com.taian.floatingballmatrix.view.SelectSocketModeDialog;
 import com.taian.floatingballmatrix.viewmodel.SettingViewModel;
-import com.tamsiree.rxkit.view.RxToast;
 
+import androidx.annotation.Nullable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
-/**
- * @Description:
- * @Author: baotaian
- * @Date: 2020/5/17
- * @Version:1.0
- */
-public class SettingActivity extends BaseActivity<ActivitySettingBinding, SettingViewModel> implements SelectSocketModeDialog.OnViewClickListenter {
-
+public class SettingFragment extends BaseFragment<FragmentSettingBinding, SettingViewModel> implements SelectSocketModeDialog.OnViewClickListenter {
     private SelectSocketModeDialog dialog;
     private Disposable subscribe;
 
     @Override
-    public int initContentView(Bundle savedInstanceState) {
-        return R.layout.activity_setting;
-    }
+    public int initContentView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return R.layout.fragment_setting;
+}
 
     @Override
     public int initVariableId() {
@@ -46,8 +47,8 @@ public class SettingActivity extends BaseActivity<ActivitySettingBinding, Settin
     public void initViewObservable() {
         viewModel.showDateDialogObservable.observe(this, (v) -> {
             if (dialog == null) {
-                dialog = new SelectSocketModeDialog(SettingActivity.this);
-                dialog.setOnViewClickListenter(SettingActivity.this);
+                dialog = new SelectSocketModeDialog(getActivity());
+                dialog.setOnViewClickListenter(SettingFragment.this);
                 dialog.show();
             } else {
                 if (!dialog.isShowing()) dialog.show();
@@ -59,10 +60,6 @@ public class SettingActivity extends BaseActivity<ActivitySettingBinding, Settin
                     binding.tvConnent.setText(settingEntity.getConnecString());
                     binding.tvConnent.setEnabled(settingEntity.isEnabled());
                     viewModel.setEntity(settingEntity);
-                    if (settingEntity.getConnecStatus() == SettingEntity.CONNECTED)
-                        RxToast.success("连接成功");
-                    else
-                        RxToast.warning("连接失败");
                 });
         RxSubscriptions.add(subscribe);
     }
@@ -75,7 +72,7 @@ public class SettingActivity extends BaseActivity<ActivitySettingBinding, Settin
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         if (subscribe != null) RxSubscriptions.remove(subscribe);
     }

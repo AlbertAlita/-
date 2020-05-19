@@ -11,11 +11,20 @@ import com.taian.floatingballmatrix.base.BaseViewModel;
 import com.taian.floatingballmatrix.base.ItemViewModel;
 import com.taian.floatingballmatrix.binding.command.BindingAction;
 import com.taian.floatingballmatrix.binding.command.BindingCommand;
+import com.taian.floatingballmatrix.constant.Constant;
 import com.taian.floatingballmatrix.entity.ButtonEntity;
+import com.taian.floatingballmatrix.entity.SettingEntity;
+import com.taian.floatingballmatrix.facotry.SocketFactory;
+import com.taian.floatingballmatrix.utils.GsonUtil;
 import com.taian.floatingballmatrix.utils.Utils;
 import com.tamsiree.rxkit.RxDeviceTool;
 import com.tamsiree.rxkit.RxImageTool;
 import com.tamsiree.rxkit.RxSPTool;
+import com.tamsiree.rxkit.view.RxToast;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 
@@ -27,6 +36,7 @@ import androidx.annotation.NonNull;
  */
 public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
 
+    private Map<Integer, ButtonEntity> map;
     public ButtonEntity entity;
 
     public BtnItemViewModel(@NonNull MainViewModel viewModel) {
@@ -42,11 +52,54 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
 
     //条目的点击事件
     public BindingCommand itemClick = new BindingCommand(() -> {
-        String hexCommand = RxSPTool.getString(viewModel.getApplication(), String.valueOf(getPosition()));
+        String json = RxSPTool.getString(Utils.getContext(), Constant.BUTTON_SETTING);
+        map = convertToMap(GsonUtil.getList(json, ButtonEntity.class));
+        ButtonEntity buttonEntity = map.get(getPosition());
+        String setting = RxSPTool.getString(Utils.getContext(), Constant.SETTING);
+        SettingEntity settingEntity = GsonUtil.fromJson(setting, SettingEntity.class);
+        if (buttonEntity != null && settingEntity != null) {
+            if (TextUtils.isEmpty(buttonEntity.hexCommand)) {
+                RxToast.warning("请设置十六位进制码");
+                return;
+            }
+            if (!buttonEntity.isSwitchOn) {
+                RxToast.warning("请在设置中打开按键开关");
+                return;
+            }
+            if (settingEntity.getConnecStatus() == SettingEntity.DISCONNECT) {
+                RxToast.warning("请在设置中打开连接");
+                return;
+            }
 
+            String protocal = settingEntity.getProtocal();
+            Log.e(TAG, ": " + protocal);
+            if (TextUtils.equals(protocal, "UDP")) {
+                if (SocketFactory.getInstance().mUdpClient.getAdress() == null) {
+                    RxToast.warning("请在设置中打开连接");
+                    return;
+                }
+                SocketFactory.getInstance().mMessageProcessor.send
+                        (SocketFactory.getInstance().mUdpClient, buttonEntity.hexCommand.getBytes());
+            } else if (TextUtils.equals(protocal, "TCP")) {
+                if (SocketFactory.getInstance().mClient.getAdress() == null) {
+                    RxToast.warning("请在设置中打开连接");
+                    return;
+                }
+                SocketFactory.getInstance().mMessageProcessor.send
+                        (SocketFactory.getInstance().mClient, buttonEntity.hexCommand.getBytes());
+            }
+        }
     });
 
     public int getPosition() {
         return viewModel.getItemPosition(this);
+    }
+
+    private Map<Integer, ButtonEntity> convertToMap(List<ButtonEntity> entities) {
+        Map<Integer, ButtonEntity> map = new HashMap<>();
+        for (ButtonEntity entity : entities) {
+            map.put(entity.index, entity);
+        }
+        return map;
     }
 }
