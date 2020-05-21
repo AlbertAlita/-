@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.taian.floatingballmatrix.R;
 import com.taian.floatingballmatrix.base.BaseViewModel;
 import com.taian.floatingballmatrix.binding.command.BindingCommand;
+import com.taian.floatingballmatrix.bus.RxBus;
 import com.taian.floatingballmatrix.bus.SingleLiveEvent;
 import com.taian.floatingballmatrix.constant.Constant;
 import com.taian.floatingballmatrix.decoration.RecyclerItemDecoration;
@@ -158,9 +159,10 @@ public class SettingViewModel extends BaseViewModel {
             Log.e(TAG, ": " + value.toString());
             entities.add(value);
         }
-        Log.e(TAG, ": " +isSuccessCommit );
         if (isSuccessCommit) {
+            Log.e(TAG, ": " +  GsonUtil.toJson(settingEntity) );
             RxSPTool.putString(getApplication(), Constant.BUTTON_SETTING, GsonUtil.toJson(entities));
+            RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
             finishForReslut();
         }
     });
@@ -182,8 +184,11 @@ public class SettingViewModel extends BaseViewModel {
             if (socketMode == UDP_MODE) udpDisconnect();
             else tcpDisconnect();
             settingEntity.setConnecString(getApplication().getString(R.string.connect));
+            settingEntity.setConnecStr(getApplication().getString(R.string.non_connect));
             settingEntity.setConnecStatus(SettingEntity.DISCONNECT);
+            settingEntity.setClickForDisconnent(true);
             settingEntity.notifyChange();
+            RxBus.getDefault().post(settingEntity);
             RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
         }
 
@@ -242,9 +247,12 @@ public class SettingViewModel extends BaseViewModel {
 
     public void setEntity(String protocal) {
         if (TextUtils.equals(settingEntity.getProtocal(), protocal)) return;
+        if (TextUtils.equals(settingEntity.getProtocal(), "UDP")) udpDisconnect();
+        else if (TextUtils.equals(settingEntity.getProtocal(), "TCP")) tcpDisconnect();
         settingEntity.setProtocal(protocal);
         settingEntity.setConnecStatus(SettingEntity.DISCONNECT);
         settingEntity.setConnecString(getApplication().getString(R.string.connect));
+        RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
         settingEntity.notifyChange();
     }
 
@@ -252,7 +260,6 @@ public class SettingViewModel extends BaseViewModel {
         settingEntity.setEnabled(entity.isEnabled());
         settingEntity.setConnecStatus(entity.getConnecStatus());
         settingEntity.setConnecString(entity.getConnecString());
-        Log.e(TAG, "setEntity: " + settingEntity.toString());
         RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
         settingEntity.notifyChange();
     }

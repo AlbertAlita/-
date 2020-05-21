@@ -15,8 +15,10 @@ import com.taian.floatingballmatrix.constant.Constant;
 import com.taian.floatingballmatrix.entity.ButtonEntity;
 import com.taian.floatingballmatrix.entity.SettingEntity;
 import com.taian.floatingballmatrix.facotry.SocketFactory;
+import com.taian.floatingballmatrix.utils.CommonUtils;
 import com.taian.floatingballmatrix.utils.GsonUtil;
 import com.taian.floatingballmatrix.utils.Utils;
+import com.tamsiree.rxkit.RxDataTool;
 import com.tamsiree.rxkit.RxDeviceTool;
 import com.tamsiree.rxkit.RxImageTool;
 import com.tamsiree.rxkit.RxSPTool;
@@ -38,15 +40,16 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
 
     private Map<Integer, ButtonEntity> map;
     public ButtonEntity entity;
+    public String defaultName = Utils.getContext().getResources().getString(R.string.default_btn_name);
 
     public BtnItemViewModel(@NonNull MainViewModel viewModel) {
         super(viewModel);
-        entity = new ButtonEntity(Utils.getContext().getResources().getString(R.string.default_btn_name));
+        entity = new ButtonEntity(defaultName);
     }
 
     public void setEntity(ButtonEntity entity) {
         if (TextUtils.isEmpty(entity.assignedName))
-            entity.assignedName = Utils.getContext().getResources().getString(R.string.default_btn_name);
+            entity.assignedName = defaultName;
         this.entity = entity;
     }
 
@@ -62,6 +65,10 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
                 RxToast.warning("请设置十六位进制码");
                 return;
             }
+            if (!CommonUtils.isHex(buttonEntity.hexCommand)) {
+                RxToast.warning("指令非为十六位进制码,请设置十六位进制码");
+                return;
+            }
             if (!buttonEntity.isSwitchOn) {
                 RxToast.warning("请在设置中打开按键开关");
                 return;
@@ -73,20 +80,21 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
 
             String protocal = settingEntity.getProtocal();
             Log.e(TAG, ": " + protocal);
+            byte[] bytes = hexStrToBinaryStr(buttonEntity.hexCommand);
             if (TextUtils.equals(protocal, "UDP")) {
                 if (SocketFactory.getInstance().mUdpClient.getAdress() == null) {
                     RxToast.warning("请在设置中打开连接");
                     return;
                 }
                 SocketFactory.getInstance().mMessageProcessor.send
-                        (SocketFactory.getInstance().mUdpClient, buttonEntity.hexCommand.getBytes());
+                        (SocketFactory.getInstance().mUdpClient, bytes);
             } else if (TextUtils.equals(protocal, "TCP")) {
                 if (SocketFactory.getInstance().mClient.getAdress() == null) {
                     RxToast.warning("请在设置中打开连接");
                     return;
                 }
                 SocketFactory.getInstance().mMessageProcessor.send
-                        (SocketFactory.getInstance().mClient, buttonEntity.hexCommand.getBytes());
+                        (SocketFactory.getInstance().mClient, bytes);
             }
         }
     });
@@ -101,5 +109,27 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
             map.put(entity.index, entity);
         }
         return map;
+    }
+
+    public static byte[] hexStrToBinaryStr(String hexString) {
+        if (TextUtils.isEmpty(hexString)) {
+            return null;
+        }
+        hexString = hexString.replaceAll(" ", "");
+
+        int len = hexString.length();
+        int index = 0;
+
+        byte[] bytes = new byte[len / 2];
+
+        while (index < len) {
+
+            String sub = hexString.substring(index, index + 2);
+
+            bytes[index/2] = (byte)Integer.parseInt(sub,16);
+
+            index += 2;
+        }
+        return bytes;
     }
 }

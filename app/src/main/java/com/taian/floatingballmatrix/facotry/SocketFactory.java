@@ -10,7 +10,9 @@ import com.taian.floatingballmatrix.structures.BaseClient;
 import com.taian.floatingballmatrix.structures.BaseMessageProcessor;
 import com.taian.floatingballmatrix.structures.IConnectListener;
 import com.taian.floatingballmatrix.structures.message.Message;
+import com.taian.floatingballmatrix.tcp.bio.BioClient;
 import com.taian.floatingballmatrix.tcp.nio.NioClient;
+import com.taian.floatingballmatrix.udp.bio.UdpBioClient;
 import com.taian.floatingballmatrix.udp.nio.UdpNioClient;
 import com.taian.floatingballmatrix.utils.Utils;
 
@@ -54,6 +56,7 @@ public class SocketFactory {
             SettingEntity settingEntity = new SettingEntity();
             settingEntity.setEnabled(true);
             settingEntity.setConnecString(Utils.getContext().getString(R.string.connected));
+            settingEntity.setConnecStr(Utils.getContext().getString(R.string.connected_str));
             settingEntity.setConnecStatus(SettingEntity.CONNECTED);
             RxBus.getDefault().postSticky(settingEntity);
         }
@@ -64,7 +67,9 @@ public class SocketFactory {
             SettingEntity settingEntity = new SettingEntity();
             settingEntity.setEnabled(true);
             settingEntity.setConnecString(Utils.getContext().getString(R.string.connect));
+            settingEntity.setConnecStr(Utils.getContext().getString(R.string.non_connect));
             settingEntity.setConnecStatus(SettingEntity.DISCONNECT);
+            settingEntity.setClickForDisconnent(false);
             RxBus.getDefault().postSticky(settingEntity);
         }
     };

@@ -24,24 +24,24 @@ public final class NioReadWriteProcessor {
 
     private static int G_SOCKET_ID = 0;
 
-    private int     mSocketId;
-    private String  mIp             = "192.168.1.1";
-    private int     mPort           = 9999;
-    private long    connect_timeout = 10000;
+    private int mSocketId;
+    private String mIp = "192.168.1.1";
+    private int mPort = 9999;
+    private long connect_timeout = 10000;
 
     private BaseClient mClient;
     private NioConnectListener mNioConnectListener;
 
     //------------------------------------------------------------------------------------------
     private SocketChannel mSocketChannel;
-    private Selector   mSelector;
+    private Selector mSelector;
 
     private ConnectRunnable mConnectProcessor;
-    private Thread mConnectThread =null;
+    private Thread mConnectThread = null;
 
     private boolean closed = false;
 
-    public NioReadWriteProcessor(String mIp, int mPort, long   connect_timeout , BaseClient mClient, NioConnectListener mNioConnectListener) {
+    public NioReadWriteProcessor(String mIp, int mPort, long connect_timeout, BaseClient mClient, NioConnectListener mNioConnectListener) {
         G_SOCKET_ID++;
 
         this.mSocketId = G_SOCKET_ID;
@@ -52,19 +52,19 @@ public final class NioReadWriteProcessor {
         this.mNioConnectListener = mNioConnectListener;
     }
 
-    public void start(){
+    public void start() {
         mConnectProcessor = new ConnectRunnable();
         mConnectThread = new Thread(mConnectProcessor);
         mConnectThread.start();
     }
 
-    public synchronized void close(){
+    public synchronized void close() {
         closed = true;
 
-        if(null!= mSocketChannel) {
+        if (null != mSocketChannel) {
             try {
                 SelectionKey key = mSocketChannel.keyFor(mSelector);
-                if(null != key){
+                if (null != key) {
                     key.cancel();
                 }
                 mSocketChannel.socket().close();
@@ -75,7 +75,7 @@ public final class NioReadWriteProcessor {
             }
         }
 
-        if(null != mSelector){
+        if (null != mSelector) {
             try {
                 mSelector.close();
             } catch (IOException e) {
@@ -87,25 +87,25 @@ public final class NioReadWriteProcessor {
         wakeUp();
     }
 
-    public void wakeUp(){
-        if(null !=mConnectProcessor){
+    public void wakeUp() {
+        if (null != mConnectProcessor) {
             mConnectProcessor.wakeUp();
         }
     }
 
-    public void onSocketExit(int exit_code){
+    public void onSocketExit(int exit_code) {
         System.out.println(TAG + "onSocketExit mSocketId " + mSocketId + " exit_code " + exit_code);
 
         close();
-        if(null != mNioConnectListener){
+        if (null != mNioConnectListener) {
             mNioConnectListener.onConnectFailed(NioReadWriteProcessor.this);
         }
     }
 
     private class ConnectRunnable implements Runnable {
 
-        public void wakeUp(){
-            if(null != mSelector){
+        public void wakeUp() {
+            if (null != mSelector) {
                 mSelector.wakeup();
             }
         }
@@ -118,23 +118,23 @@ public final class NioReadWriteProcessor {
                 mSocketChannel = SocketChannel.open();
                 mSocketChannel.configureBlocking(false);
 
-                InetSocketAddress address=new InetSocketAddress(mIp, mPort);
+                InetSocketAddress address = new InetSocketAddress(mIp, mPort);
                 mSocketChannel.connect(address);
-                mSocketChannel.register(mSelector, SelectionKey.OP_CONNECT,mClient);
+                mSocketChannel.register(mSelector, SelectionKey.OP_CONNECT, mClient);
 
                 //处理连接
                 boolean isConnectSuccess = connect(connect_timeout);
 
                 //开始读写
-                if(isConnectSuccess){
+                if (isConnectSuccess) {
                     boolean isExit = false;
-                    while(!isExit) {
+                    while (!isExit) {
 
                         int readKeys = mSelector.select();
-                        if(readKeys > 0){
+                        if (readKeys > 0) {
                             Iterator<SelectionKey> selectedKeys = mSelector.selectedKeys().iterator();
                             while (selectedKeys.hasNext()) {
-                                SelectionKey key =  selectedKeys.next();
+                                SelectionKey key = selectedKeys.next();
                                 selectedKeys.remove();
 
                                 if (!key.isValid()) {
@@ -144,7 +144,7 @@ public final class NioReadWriteProcessor {
                                 if (key.isReadable()) {
                                     BaseClient mClient = (BaseClient) key.attachment();
                                     boolean ret = mClient.onRead();
-                                    if(!ret){
+                                    if (!ret) {
                                         isExit = true;
                                         key.cancel();
                                         key.attach(null);
@@ -152,10 +152,10 @@ public final class NioReadWriteProcessor {
                                         break;
                                     }
 
-                                }else if (key.isWritable()) {
+                                } else if (key.isWritable()) {
                                     BaseClient mClient = (BaseClient) key.attachment();
                                     boolean ret = mClient.onWrite();
-                                    if(!ret){
+                                    if (!ret) {
                                         isExit = true;
                                         key.cancel();
                                         key.attach(null);
@@ -167,12 +167,12 @@ public final class NioReadWriteProcessor {
                             }
                         }
 
-                        if(isExit || closed){
+                        if (isExit || closed) {
                             break;
                         }
 
-                        if(!mClient.mWriteMessageQueen.mWriteQueen.isEmpty()) {
-                            SelectionKey key= mSocketChannel.keyFor(mSelector);
+                        if (!mClient.mWriteMessageQueen.mWriteQueen.isEmpty()) {
+                            SelectionKey key = mSocketChannel.keyFor(mSelector);
                             key.interestOps(SelectionKey.OP_WRITE);
                         }
                     }
@@ -189,12 +189,12 @@ public final class NioReadWriteProcessor {
             boolean isConnectSuccess = false;
             //连接
             int connectReady = 0;
-            if(connect_timeout == -1){
+            if (connect_timeout == -1) {
                 connectReady = mSelector.select();
-            }else{
+            } else {
                 connectReady = mSelector.select(connect_timeout);
             }
-            if(connectReady > 0){
+            if (connectReady > 0) {
                 Iterator<SelectionKey> selectedKeys = mSelector.selectedKeys().iterator();
                 while (selectedKeys.hasNext()) {
                     SelectionKey key = selectedKeys.next();
@@ -207,7 +207,7 @@ public final class NioReadWriteProcessor {
                     if (key.isConnectable()) {
                         boolean ret = finishConnection(key);
                         isConnectSuccess = ret;
-                        if(!ret){
+                        if (!ret) {
                             key.cancel();
                             key.attach(null);
                             key.channel().close();
@@ -215,36 +215,36 @@ public final class NioReadWriteProcessor {
                         }
                     }
                 }
-            }else{
+            } else {
                 isConnectSuccess = false;
-                try{
+                try {
                     Iterator<SelectionKey> selectedKeys = mSelector.keys().iterator();
-                    while(selectedKeys.hasNext()){
+                    while (selectedKeys.hasNext()) {
                         SelectionKey key = selectedKeys.next();
                         key.cancel();
                         key.attach(null);
                         key.channel().close();
                     }
-                }catch(Exception e2){
+                } catch (Exception e2) {
                     e2.printStackTrace();
                 }
             }
             return isConnectSuccess;
         }
 
-        private boolean finishConnection(SelectionKey key){
+        private boolean finishConnection(SelectionKey key) {
             boolean connectRet = true;
-            try{
+            try {
                 boolean result;
                 SocketChannel socketChannel = (SocketChannel) key.channel();
-                result= socketChannel.finishConnect();//没有网络的时候也返回true;连不上的情况下会抛出java.net.ConnectException: Connection refused
-                if(result) {
+                result = socketChannel.finishConnect();//没有网络的时候也返回true;连不上的情况下会抛出java.net.ConnectException: Connection refused
+                if (result) {
                     key.interestOps(SelectionKey.OP_READ);
-                    if(null != mNioConnectListener){
-                        mNioConnectListener.onConnectSuccess(NioReadWriteProcessor.this,mSocketChannel);
+                    if (null != mNioConnectListener) {
+                        mNioConnectListener.onConnectSuccess(NioReadWriteProcessor.this, mSocketChannel);
                     }
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 connectRet = false;
             }

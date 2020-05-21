@@ -44,7 +44,9 @@ public class FirstLevelNodeViewBinder extends CheckableNodeViewBinder {
 
     @Override
     public void onNodeToggled(int position, TreeNode treeNode, boolean expand, Context context) {
-        Log.e("TAG", "onNodeToggled: " );
+        Log.e("TAG", "onNodeToggled: "+expand );
+        ButtonEntity value = (ButtonEntity) treeNode.getValue();
+        value.isSwitchOn = expand;
         checkBox.setChecked(expand);
     }
 

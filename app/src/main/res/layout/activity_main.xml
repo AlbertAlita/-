@@ -26,11 +26,11 @@
             <ImageView
                 android:id="@+id/iv_banner"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:background="@color/colorPrimary"
-                binding:onClickCommand="@{viewModel.settinigClicked}" />
+                android:layout_height="wrap_content"
+                android:background="@mipmap/banner" />
 
             <TextView
+                android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -41,18 +41,18 @@
         </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:paddingLeft="3.5dp"
-            android:paddingRight="3.5dp"
             android:id="@+id/rcy_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
             android:layout_below="@+id/banner"
             android:listSelector="@android:color/transparent"
-            binding:itemBinding="@{viewModel.itemBinding}"
-            binding:layoutManager="@{viewModel.gridLayoutManager}"
+            android:paddingLeft="3.5dp"
+            android:paddingRight="3.5dp"
+            android:scrollbars="none"
             binding:adapter="@{viewModel.adapter}"
-            binding:items="@{viewModel.observableList}" />
+            binding:itemBinding="@{viewModel.itemBinding}"
+            binding:items="@{viewModel.observableList}"
+            binding:layoutManager="@{viewModel.gridLayoutManager}" />
 
         <ImageView
             android:id="@+id/iv_setting"
@@ -61,7 +61,20 @@
             android:layout_alignParentRight="true"
             android:layout_marginTop="35dp"
             android:layout_marginRight="15dp"
-            android:background="@mipmap/setting" />
+            android:background="@mipmap/setting"
+            binding:onClickCommand="@{viewModel.settinigClicked}" />
+
+        <TextView
+            android:id="@+id/connect_state"
+            android:text="@={viewModel.settingEntity.connecStr}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rcy_btn"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="15dp"
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
 
     </RelativeLayout>
 

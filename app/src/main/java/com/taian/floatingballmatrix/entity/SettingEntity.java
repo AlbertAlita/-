@@ -9,7 +9,7 @@ import android.os.Parcelable;
 
 import androidx.databinding.BaseObservable;
 
-public class SettingEntity extends BaseObservable implements Parcelable {
+public class SettingEntity extends BaseObservable {
 
     public SettingEntity() {
     }
@@ -22,29 +22,10 @@ public class SettingEntity extends BaseObservable implements Parcelable {
     private String ip;
     private String port;
     private String connecString = "连接";
-    private boolean enabled = true;
+    private String connecStr ;
+    private boolean enabled = true,clickForDisconnent;
     private int connecStatus = DISCONNECT;
 
-
-    protected SettingEntity(Parcel in) {
-        title = in.readString();
-        protocal = in.readString();
-        ip = in.readString();
-        port = in.readString();
-        connecStatus = in.readInt();
-    }
-
-    public static final Creator<SettingEntity> CREATOR = new Creator<SettingEntity>() {
-        @Override
-        public SettingEntity createFromParcel(Parcel in) {
-            return new SettingEntity(in);
-        }
-
-        @Override
-        public SettingEntity[] newArray(int size) {
-            return new SettingEntity[size];
-        }
-    };
 
     public String getConnecString() {
         return connecString;
@@ -94,18 +75,12 @@ public class SettingEntity extends BaseObservable implements Parcelable {
         this.connecStatus = connecStatus;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public String getConnecStr() {
+        return connecStr;
     }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(title);
-        parcel.writeString(protocal);
-        parcel.writeString(ip);
-        parcel.writeString(port);
-        parcel.writeInt(connecStatus);
+    public void setConnecStr(String connecStr) {
+        this.connecStr = connecStr;
     }
 
     public boolean isEnabled() {
@@ -114,6 +89,14 @@ public class SettingEntity extends BaseObservable implements Parcelable {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void setClickForDisconnent(boolean clickForDisconnent) {
+        this.clickForDisconnent = clickForDisconnent;
+    }
+
+    public boolean isClickForDisconnent() {
+        return clickForDisconnent;
     }
 
     @Override
@@ -126,6 +109,7 @@ public class SettingEntity extends BaseObservable implements Parcelable {
                 ", connecString='" + connecString + '\'' +
                 ", enabled=" + enabled +
                 ", connecStatus=" + connecStatus +
+                ", connecStr=" + connecStr +
                 '}';
     }
 }

@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -16,6 +17,8 @@ import com.taian.floatingballmatrix.R;
 import com.taian.floatingballmatrix.entity.ButtonEntity;
 import com.taian.floatingballmatrix.view.treeview.TreeNode;
 import com.taian.floatingballmatrix.view.treeview.base.CheckableNodeViewBinder;
+
+import static android.content.ContentValues.TAG;
 
 public class SecondLevelNodeViewBinder extends CheckableNodeViewBinder {
 
@@ -62,7 +65,8 @@ public class SecondLevelNodeViewBinder extends CheckableNodeViewBinder {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                value.hexCommand = s.toString();
+                String string = s.toString();
+                value.hexCommand = string;
             }
 
             @Override
@@ -75,7 +79,20 @@ public class SecondLevelNodeViewBinder extends CheckableNodeViewBinder {
             etName.setText(assignedName);
         }
         if (!TextUtils.isEmpty(hexCommand)) {
-            etHex.setText(hexCommand);
+            etHex.setText(formatHex(hexCommand));
         }
+    }
+
+    private String formatHex(String hexCommand) {
+        String newHex = "";
+        char[] chars = hexCommand.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            if (i % 2 == 0) {
+                if (i < 3) newHex += (chars[i] + " ");
+            } else {
+                newHex += chars[i];
+            }
+        }
+        return newHex;
     }
 }

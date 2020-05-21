@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.taian.floatingballmatrix.base.BaseActivity;
+import com.taian.floatingballmatrix.bus.RxBus;
+import com.taian.floatingballmatrix.bus.RxSubscriptions;
 import com.taian.floatingballmatrix.constant.Constant;
 import com.taian.floatingballmatrix.databinding.ActivityMainBinding;
 import com.taian.floatingballmatrix.entity.SettingEntity;
@@ -20,10 +22,13 @@ import com.tamsiree.rxkit.RxSPTool;
 import com.tamsiree.rxkit.view.RxToast;
 
 import androidx.annotation.Nullable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewModel> implements CheckCodeDialog.OnViewClickListenter {
 
     private CheckCodeDialog dialog;
+    private Disposable subscribe;
 
     @Override
     public int initContentView(Bundle savedInstanceState) {
@@ -33,6 +38,11 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     @Override
     public int initVariableId() {
         return BR.viewModel;
+    }
+
+    @Override
+    public void initData() {
+        binding.banner.getLayoutParams().height = RxDeviceTool.getScreenWidth(this) / 2;
     }
 
     @Override
@@ -46,12 +56,27 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                 if (!dialog.isShowing()) dialog.show();
             }
         });
+        subscribe = RxBus.getDefault().toObservable(SettingEntity.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((settingEntity) -> {
+                    Log.e(TAG, "initViewObservable: " + settingEntity.toString() );
+                    binding.connectState.setText("连接状态：" + settingEntity.getConnecStr());
+                    if (settingEntity.getConnecStatus() == SettingEntity.CONNECTED) {
+                        viewModel.setConnected();
+                    } else {
+                    }
+                });
+        RxSubscriptions.add(subscribe);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Constant.REQUEST_CODE) {
+            String setting = RxSPTool.getString(getApplication(), Constant.SETTING);
+            if (!TextUtils.isEmpty(setting)) {
+                binding.title.setText(GsonUtil.fromJson(setting, SettingEntity.class).getTitle());
+            }
             viewModel.setOnItemChanged();
         }
     }
@@ -59,6 +84,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (subscribe != null) RxSubscriptions.remove(subscribe);
         SocketFactory.getInstance().mClient.disconnect();
         SocketFactory.getInstance().mUdpClient.disconnect();
         String setting = RxSPTool.getString(this, Constant.SETTING);
@@ -77,9 +103,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
 
     @Override
     public void onViewClicked(String psd) {
-        Log.e(TAG, "onViewClicked: " + psd);
         if (TextUtils.equals(Constant.PSD, psd)) {
-            startActivityForResult(SettingActivity.class,Constant.REQUEST_CODE);
+            startActivityForResult(SettingActivity.class, Constant.REQUEST_CODE);
             dialog.dismiss();
         } else {
             RxToast.warning("密码错误！");
