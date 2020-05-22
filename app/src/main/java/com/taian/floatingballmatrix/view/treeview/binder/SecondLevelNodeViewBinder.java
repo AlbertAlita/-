@@ -79,20 +79,20 @@ public class SecondLevelNodeViewBinder extends CheckableNodeViewBinder {
             etName.setText(assignedName);
         }
         if (!TextUtils.isEmpty(hexCommand)) {
-            etHex.setText(formatHex(hexCommand));
+            etHex.setText(hexCommand);
         }
     }
 
-    private String formatHex(String hexCommand) {
-        String newHex = "";
-        char[] chars = hexCommand.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            if (i % 2 == 0) {
-                if (i < 3) newHex += (chars[i] + " ");
-            } else {
-                newHex += chars[i];
-            }
-        }
-        return newHex;
-    }
+//    private String formatHex(String hexCommand) {
+//        String newHex = "";
+//        char[] chars = hexCommand.toCharArray();
+//        for (int i = 0; i < chars.length; i++) {
+//            if (i % 2 == 0) {
+//                if (i < 3) newHex += (chars[i] + " ");
+//            } else {
+//                newHex += chars[i];
+//            }
+//        }
+//        return newHex;
+//    }
 }

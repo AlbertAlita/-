@@ -61,14 +61,17 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
         String setting = RxSPTool.getString(Utils.getContext(), Constant.SETTING);
         SettingEntity settingEntity = GsonUtil.fromJson(setting, SettingEntity.class);
         if (buttonEntity != null && settingEntity != null) {
-            if (TextUtils.isEmpty(buttonEntity.hexCommand)) {
+            String hexCommand = buttonEntity.hexCommand;
+            if (TextUtils.isEmpty(hexCommand)) {
                 RxToast.warning("请设置十六位进制码");
                 return;
             }
-            if (!CommonUtils.isHex(buttonEntity.hexCommand)) {
-                RxToast.warning("指令非为十六位进制码,请设置十六位进制码");
+            String s = hexCommand.replaceAll(" ", "");
+            if (s.length() % 2 != 0) {
+                RxToast.warning("指令位数必须为偶数");
                 return;
             }
+            Log.e(TAG, ": " + hexCommand );
             if (!buttonEntity.isSwitchOn) {
                 RxToast.warning("请在设置中打开按键开关");
                 return;
@@ -80,7 +83,7 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
 
             String protocal = settingEntity.getProtocal();
             Log.e(TAG, ": " + protocal);
-            byte[] bytes = hexStrToBinaryStr(buttonEntity.hexCommand);
+            byte[] bytes = hexStrToBinaryStr(hexCommand);
             if (TextUtils.equals(protocal, "UDP")) {
                 if (SocketFactory.getInstance().mUdpClient.getAdress() == null) {
                     RxToast.warning("请在设置中打开连接");
@@ -126,7 +129,7 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
 
             String sub = hexString.substring(index, index + 2);
 
-            bytes[index/2] = (byte)Integer.parseInt(sub,16);
+            bytes[index / 2] = (byte) Integer.parseInt(sub, 16);
 
             index += 2;
         }
