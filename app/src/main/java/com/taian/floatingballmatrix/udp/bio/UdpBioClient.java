@@ -43,6 +43,11 @@ public class UdpBioClient extends BaseClient {
         mConnector.disconnect();
     }
 
+    @Override
+    public void setOnSendMsgStateLisntener(OnSendMsgStateLisntener lisntener) {
+
+    }
+
     public void reconnect(){
         mConnector.reconnect();
     }

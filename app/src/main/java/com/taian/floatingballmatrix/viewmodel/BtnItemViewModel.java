@@ -71,7 +71,7 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
                 RxToast.warning("指令位数必须为偶数");
                 return;
             }
-            Log.e(TAG, ": " + hexCommand );
+            Log.e(TAG, ": " + hexCommand);
             if (!buttonEntity.isSwitchOn) {
                 RxToast.warning("请在设置中打开按键开关");
                 return;
@@ -99,6 +99,7 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
                 SocketFactory.getInstance().mMessageProcessor.send
                         (SocketFactory.getInstance().mClient, bytes);
             }
+//            RxToast.success("已发送");
         }
     });
 
@@ -119,18 +120,12 @@ public class BtnItemViewModel extends ItemViewModel<MainViewModel> {
             return null;
         }
         hexString = hexString.replaceAll(" ", "");
-
         int len = hexString.length();
         int index = 0;
-
         byte[] bytes = new byte[len / 2];
-
         while (index < len) {
-
             String sub = hexString.substring(index, index + 2);
-
             bytes[index / 2] = (byte) Integer.parseInt(sub, 16);
-
             index += 2;
         }
         return bytes;

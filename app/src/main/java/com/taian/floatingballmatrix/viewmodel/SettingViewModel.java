@@ -160,7 +160,7 @@ public class SettingViewModel extends BaseViewModel {
             entities.add(value);
         }
         if (isSuccessCommit) {
-            Log.e(TAG, ": " +  GsonUtil.toJson(settingEntity) );
+            Log.e(TAG, ": " + GsonUtil.toJson(settingEntity));
             RxSPTool.putString(getApplication(), Constant.BUTTON_SETTING, GsonUtil.toJson(entities));
             RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
             finishForReslut();
@@ -249,6 +249,7 @@ public class SettingViewModel extends BaseViewModel {
         if (TextUtils.equals(settingEntity.getProtocal(), protocal)) return;
         if (TextUtils.equals(settingEntity.getProtocal(), "UDP")) udpDisconnect();
         else if (TextUtils.equals(settingEntity.getProtocal(), "TCP")) tcpDisconnect();
+        settingEntity.setEnabled(true);
         settingEntity.setProtocal(protocal);
         settingEntity.setConnecStatus(SettingEntity.DISCONNECT);
         settingEntity.setConnecString(getApplication().getString(R.string.connect));

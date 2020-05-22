@@ -67,7 +67,6 @@ public class MainViewModel extends BaseViewModel {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "====>onCreate: ");
         autoConnect();
     }
 
@@ -103,6 +102,15 @@ public class MainViewModel extends BaseViewModel {
         settingEntity.setConnecString(getApplication().getString(R.string.connected));
         settingEntity.setConnecStr("连接状态：" + getApplication().getString(R.string.connected_str));
         settingEntity.setConnecStatus(SettingEntity.CONNECTED);
+        RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
+        settingEntity.notifyChange();
+    }
+
+    public void setDisConnect() {
+        settingEntity.setEnabled(true);
+        settingEntity.setConnecString(getApplication().getString(R.string.connect));
+        settingEntity.setConnecStr("连接状态：" + getApplication().getString(R.string.non_connect));
+        settingEntity.setConnecStatus(SettingEntity.DISCONNECT);
         RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
         settingEntity.notifyChange();
     }

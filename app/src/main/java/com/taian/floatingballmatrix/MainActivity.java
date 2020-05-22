@@ -11,6 +11,7 @@ import com.taian.floatingballmatrix.bus.RxBus;
 import com.taian.floatingballmatrix.bus.RxSubscriptions;
 import com.taian.floatingballmatrix.constant.Constant;
 import com.taian.floatingballmatrix.databinding.ActivityMainBinding;
+import com.taian.floatingballmatrix.entity.Reason;
 import com.taian.floatingballmatrix.entity.SettingEntity;
 import com.taian.floatingballmatrix.facotry.SocketFactory;
 import com.taian.floatingballmatrix.utils.GsonUtil;
@@ -56,17 +57,26 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                 if (!dialog.isShowing()) dialog.show();
             }
         });
-        subscribe = RxBus.getDefault().toObservable(SettingEntity.class)
+        RxSubscriptions.add(RxBus.getDefault().toObservable(SettingEntity.class)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((settingEntity) -> {
-                    Log.e(TAG, "initViewObservable: " + settingEntity.toString() );
+                    Log.e(TAG, "initViewObservable: " + settingEntity.toString());
                     binding.connectState.setText("连接状态：" + settingEntity.getConnecStr());
                     if (settingEntity.getConnecStatus() == SettingEntity.CONNECTED) {
+                        RxToast.success("连接成功");
                         viewModel.setConnected();
                     } else {
+//                        RxToast.warning("连接断开");
+                        viewModel.setDisConnect();
                     }
-                });
-        RxSubscriptions.add(subscribe);
+                }));
+        RxSubscriptions.add(RxBus.getDefault().toObservable(Reason.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((reason) -> {
+                    Log.e(TAG, "initViewObservable: ");
+//                    RxToast.warning("连接断开");
+                    RxToast.warning(getString(R.string.send_failed_reason2));
+                }));
     }
 
     @Override
@@ -84,7 +94,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (subscribe != null) RxSubscriptions.remove(subscribe);
+        if (subscribe != null) RxSubscriptions.clear();
         SocketFactory.getInstance().mClient.disconnect();
         SocketFactory.getInstance().mUdpClient.disconnect();
         String setting = RxSPTool.getString(this, Constant.SETTING);

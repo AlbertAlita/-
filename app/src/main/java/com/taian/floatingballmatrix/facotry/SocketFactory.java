@@ -5,6 +5,7 @@ import android.util.Log;
 import com.taian.floatingballmatrix.R;
 import com.taian.floatingballmatrix.bus.RxBus;
 import com.taian.floatingballmatrix.constant.Constant;
+import com.taian.floatingballmatrix.entity.Reason;
 import com.taian.floatingballmatrix.entity.SettingEntity;
 import com.taian.floatingballmatrix.structures.BaseClient;
 import com.taian.floatingballmatrix.structures.BaseMessageProcessor;
@@ -23,7 +24,7 @@ import java.util.LinkedList;
 */
 
 
-public class SocketFactory {
+public class SocketFactory implements BaseClient.OnSendMsgStateLisntener {
 
     public NioClient mClient;
     public UdpNioClient mUdpClient;
@@ -74,9 +75,21 @@ public class SocketFactory {
         }
     };
 
+    @Override
+    public void onSendFailed(String reason) {
+        Log.e(TAG, "onSendFailed: " + reason);
+        RxBus.getDefault().postSticky(new Reason(reason));
+    }
+
+    /*
+        注意我只写了nio链接的连接setOnSendMsgStateLisntener方法，
+        未重写 bio 连接setOnSendMsgStateLisntener方法未重写，维护者记得重写
+     */
     private SocketFactory() {
         mClient = new NioClient(mMessageProcessor, mConnectResultListener);
         mUdpClient = new UdpNioClient(mMessageProcessor, mConnectResultListener);
+        mClient.setOnSendMsgStateLisntener(this);
+        mUdpClient.setOnSendMsgStateLisntener(this);
     }
 
     public static void resetSocket() {

@@ -1,6 +1,7 @@
 package com.taian.floatingballmatrix.structures;
 
 
+import com.taian.floatingballmatrix.entity.Reason;
 import com.taian.floatingballmatrix.structures.message.Message;
 import com.taian.floatingballmatrix.structures.message.MessageReadQueen;
 import com.taian.floatingballmatrix.structures.message.MessageWriteQueen;
@@ -20,6 +21,8 @@ public abstract class BaseClient {
     public MessageWriteQueen mWriteMessageQueen = new MessageWriteQueen();
 
     protected BaseMessageProcessor mMessageProcessor;
+
+    protected OnSendMsgStateLisntener onSendMsgStateLisntener;
 
     public BaseClient(BaseMessageProcessor mMessageProcessor) {
         this.mMessageProcessor = mMessageProcessor;
@@ -78,5 +81,10 @@ public abstract class BaseClient {
 
     public abstract void disconnect();
 
+    public abstract void setOnSendMsgStateLisntener(OnSendMsgStateLisntener lisntener);
+
+    public interface OnSendMsgStateLisntener {
+        void onSendFailed(String reason);
+    }
 
 }
