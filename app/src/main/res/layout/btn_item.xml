@@ -20,15 +20,16 @@
         android:layout_marginLeft="3.5dp"
         android:layout_marginTop="7dp"
         android:layout_marginRight="3.5dp"
-        app:cardBackgroundColor="@android:color/white"
         app:cardElevation="3dp"
         app:cardPreventCornerOverlap="true"
         app:cardUseCompatPadding="true"
         binding:onClickCommand="@{viewModel.itemClick}">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="@drawable/send_selector"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
             android:text="@{viewModel.entity.isSwitchOn?viewModel.entity.assignedName:viewModel.defaultName}"
             android:textColor="@android:color/black"
