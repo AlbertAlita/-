@@ -52,8 +52,8 @@
             android:textColor="@android:color/black"
             android:textSize="14sp" />
 
-        <EditText
-            android:inputType="textEmailAddress"
+        <com.taian.floatingballmatrix.view.IntervalAddTagEditText
+            android:digits="0123456789ABCDEFabcdef"
             android:id="@+id/et_hex"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

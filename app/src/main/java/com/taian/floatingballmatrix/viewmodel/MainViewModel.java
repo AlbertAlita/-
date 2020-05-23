@@ -16,6 +16,9 @@ import com.taian.floatingballmatrix.bus.SingleLiveEvent;
 import com.taian.floatingballmatrix.constant.Constant;
 import com.taian.floatingballmatrix.entity.ButtonEntity;
 import com.taian.floatingballmatrix.entity.SettingEntity;
+import com.taian.floatingballmatrix.facotry.SocketFactory;
+import com.taian.floatingballmatrix.structures.TcpAddress;
+import com.taian.floatingballmatrix.structures.UdpAddress;
 import com.taian.floatingballmatrix.utils.GsonUtil;
 import com.tamsiree.rxkit.RxDeviceTool;
 import com.tamsiree.rxkit.RxSPTool;
@@ -55,10 +58,61 @@ public class MainViewModel extends BaseViewModel {
         String setting = RxSPTool.getString(getApplication(), Constant.SETTING);
         if (!TextUtils.isEmpty(setting)) {
             settingEntity = GsonUtil.fromJson(setting, SettingEntity.class);
-        }else {
-            settingEntity= new SettingEntity();
+        } else {
+            settingEntity = new SettingEntity();
             settingEntity.setTitle(getApplication().getString(R.string.default_title));
         }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        autoConnect();
+    }
+
+    private void autoConnect() {
+        if (TextUtils.isEmpty(settingEntity.getIp()) || TextUtils.isEmpty(settingEntity.getPort()))
+            return;
+        if (TextUtils.equals(settingEntity.getProtocal(), "UDP")) {
+            Log.e(TAG, "udpOpen: " + settingEntity.getIp() + "---" + settingEntity.getPort());
+            SocketFactory.getInstance().mUdpClient.setConnectAddress(new UdpAddress[]
+                    {new UdpAddress(settingEntity.getIp(), Integer.valueOf(settingEntity.getPort()))});
+            SocketFactory.getInstance().mUdpClient.connect();
+//            setConnected();
+        } else if (TextUtils.equals(settingEntity.getProtocal(), "TCP")) {
+            Log.e(TAG, "tcpOpen: " + settingEntity.getIp() + "---" + settingEntity.getPort());
+            SocketFactory.getInstance().mClient.setConnectAddress(new TcpAddress[]
+                    {new TcpAddress(settingEntity.getIp(), Integer.valueOf(settingEntity.getPort()))});
+            SocketFactory.getInstance().mClient.connect();
+            if (!SocketFactory.getInstance().mClient.isConnected()) {
+                notifyConnecting();
+            }
+        }
+    }
+
+    private void notifyConnecting() {
+        settingEntity.setEnabled(false);
+        settingEntity.setConnecStr("连接状态：" + getApplication().getString(R.string.connectting));
+        settingEntity.notifyChange();
+    }
+
+
+    public void setConnected() {
+        settingEntity.setEnabled(true);
+        settingEntity.setConnecString(getApplication().getString(R.string.connected));
+        settingEntity.setConnecStr("连接状态：" + getApplication().getString(R.string.connected_str));
+        settingEntity.setConnecStatus(SettingEntity.CONNECTED);
+        RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
+        settingEntity.notifyChange();
+    }
+
+    public void setDisConnect() {
+        settingEntity.setEnabled(true);
+        settingEntity.setConnecString(getApplication().getString(R.string.connect));
+        settingEntity.setConnecStr("连接状态：" + getApplication().getString(R.string.non_connect));
+        settingEntity.setConnecStatus(SettingEntity.DISCONNECT);
+        RxSPTool.putString(getApplication(), Constant.SETTING, GsonUtil.toJson(settingEntity));
+        settingEntity.notifyChange();
     }
 
     public GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplication(), 3);
@@ -79,7 +133,6 @@ public class MainViewModel extends BaseViewModel {
 
     public void setOnItemChanged() {
         String json = RxSPTool.getString(getApplication(), Constant.BUTTON_SETTING);
-        Log.e(TAG, "setOnItemChanged: " + json );
         map = convertToMap(GsonUtil.getList(json, ButtonEntity.class));
         for (int i = 0; i < observableList.size(); i++) {
             ButtonEntity buttonEntity = map.get(i);

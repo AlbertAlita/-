@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -16,6 +17,8 @@ import com.taian.floatingballmatrix.R;
 import com.taian.floatingballmatrix.entity.ButtonEntity;
 import com.taian.floatingballmatrix.view.treeview.TreeNode;
 import com.taian.floatingballmatrix.view.treeview.base.CheckableNodeViewBinder;
+
+import static android.content.ContentValues.TAG;
 
 public class SecondLevelNodeViewBinder extends CheckableNodeViewBinder {
 
@@ -62,7 +65,8 @@ public class SecondLevelNodeViewBinder extends CheckableNodeViewBinder {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                value.hexCommand = s.toString();
+                String string = s.toString();
+                value.hexCommand = string;
             }
 
             @Override
@@ -78,4 +82,5 @@ public class SecondLevelNodeViewBinder extends CheckableNodeViewBinder {
             etHex.setText(hexCommand);
         }
     }
+
 }

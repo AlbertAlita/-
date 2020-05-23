@@ -61,8 +61,10 @@ public class SettingActivity extends BaseActivity<ActivitySettingBinding, Settin
                     viewModel.setEntity(settingEntity);
                     if (settingEntity.getConnecStatus() == SettingEntity.CONNECTED)
                         RxToast.success("连接成功");
-                    else
-                        RxToast.warning("连接失败");
+                    else {
+                        if (!settingEntity.isClickForDisconnent())
+                            RxToast.warning("连接失败");
+                    }
                 });
         RxSubscriptions.add(subscribe);
     }
