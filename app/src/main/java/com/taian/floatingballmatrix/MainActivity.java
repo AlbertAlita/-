@@ -36,6 +36,11 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     }
 
     @Override
+    public void initData() {
+        binding.ivBanner.getLayoutParams().height = RxDeviceTool.getScreenWidth(this) / 2;
+    }
+
+    @Override
     public void initViewObservable() {
         viewModel.dialogEvent.observe(this, (v) -> {
             if (dialog == null) {
@@ -79,7 +84,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     public void onViewClicked(String psd) {
         Log.e(TAG, "onViewClicked: " + psd);
         if (TextUtils.equals(Constant.PSD, psd)) {
-            startActivityForResult(SettingActivity.class,Constant.REQUEST_CODE);
+            startActivityForResult(SettingActivity.class, Constant.REQUEST_CODE);
             dialog.dismiss();
         } else {
             RxToast.warning("密码错误！");
